@@ -138,8 +138,16 @@ export default function Cursor() {
       root.classList.remove("is-pressed");
       if (e.pointerType === "mouse") return;
       clearTimeout(touchTimer);
-      // Leave the ring up a moment so the tap reads, then fade out.
-      touchTimer = setTimeout(() => root.classList.remove("is-active", "is-touch"), 450);
+      // Leave the ring up a moment so the tap reads, then fade out. Keep "is-touch" so the
+      // mouse arrow doesn't flash in during the fade (a real mouse move clears it).
+      touchTimer = setTimeout(() => root.classList.remove("is-active"), 450);
+    };
+    const onCancel = (e: PointerEvent) => {
+      root.classList.remove("is-pressed");
+      if (e.pointerType === "mouse") return;
+      // The touch turned into a scroll: hide the ring right away instead of leaving it behind.
+      clearTimeout(touchTimer);
+      root.classList.remove("is-active");
     };
     const onOver = (e: PointerEvent) => {
       if (e.pointerType === "mouse") stateFor(e.target as Element | null);
@@ -151,7 +159,7 @@ export default function Cursor() {
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onDown, { passive: true });
     window.addEventListener("pointerup", onUp, { passive: true });
-    window.addEventListener("pointercancel", onUp, { passive: true }); // touch turned into a scroll
+    window.addEventListener("pointercancel", onCancel, { passive: true }); // touch turned into a scroll
     document.addEventListener("pointerover", onOver, { passive: true });
     html.addEventListener("pointerleave", onLeave);
 
@@ -161,7 +169,7 @@ export default function Cursor() {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("pointercancel", onCancel);
       document.removeEventListener("pointerover", onOver);
       html.removeEventListener("pointerleave", onLeave);
     };
