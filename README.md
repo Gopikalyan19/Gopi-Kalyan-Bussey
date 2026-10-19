@@ -7,7 +7,7 @@
 **The portfolio of Gopi Kalyan, UI/UX & Product Designer.**
 _I design digital experiences you'll want to swipe right on._
 
-[**View the live site →**](https://gopi-kalyan-bussey.vercel.app) &nbsp;·&nbsp; [LinkedIn](https://www.linkedin.com/in/gopi-kalyan-bb139731a) &nbsp;·&nbsp; [Email](mailto:gopibussey@gmail.com)
+[**View the live site →**](https://specsandpixels.vercel.app/) &nbsp;·&nbsp; [LinkedIn](https://www.linkedin.com/in/gopi-kalyan-bussey-bb139731a/) &nbsp;·&nbsp; [Email](mailto:gopibussey@gmail.com)
 
 </div>
 

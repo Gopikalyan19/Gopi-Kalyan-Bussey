@@ -12,7 +12,7 @@ export const PERSON = {
   email: "gopibussey@gmail.com",
   phone: "+91 63014 62658",
   linkedin:
-    "https://www.linkedin.com/in/gopi-kalyan-bb139731a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    "https://www.linkedin.com/in/gopi-kalyan-bussey-bb139731a/",
 };
 
 /** The Mail Me page (contact form). */
