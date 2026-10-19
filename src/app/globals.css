@@ -1,0 +1,1293 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #0e0e0e;
+  --color-page: #ededed;
+  /* Accent colour (was red; now black). Used for labels, dots, accent cards and highlights. */
+  --color-red: #0e0e0e;
+  --color-ghost: #dedede;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-geist), ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--color-red);
+    color: #fff;
+  }
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+/* ============================================================
+   Components
+   ============================================================ */
+@layer components {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page;
+  }
+
+  /* ---------- Hero ---------- */
+  /* Load-in: hero pieces pop in once, staggered by --d. */
+  .reveal {
+    animation: pop 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--d, 0s) + var(--intro, 0s));
+  }
+
+  .bubble {
+    position: relative;
+  }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    width: 12px;
+    height: 10px;
+    background: var(--color-ink);
+  }
+  .bubble--right::after {
+    right: 8px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+  }
+  .bubble--left::after {
+    left: 8px;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+  .wave {
+    display: inline-block;
+    transform-origin: 70% 70%;
+  }
+  .bubble:hover .wave {
+    animation: wave 1s ease-in-out;
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    transition:
+      transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.5s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 30px -18px rgba(0, 0, 0, 0.35);
+  }
+  .card-media {
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .card:hover .card-media,
+  .work-card:hover .card-media {
+    transform: scale(1.04);
+  }
+  /* Portfolio: no box; the title underlines on hover. */
+  .work-title {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    transition: text-decoration-color 0.3s;
+  }
+  .work-card:hover .work-title {
+    text-decoration-color: currentColor;
+  }
+  .arrow-btn {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    color: #fff;
+    background: rgb(0 0 0 / 0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+      transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 0.3s,
+      color 0.3s;
+  }
+  .card:hover .arrow-btn,
+  .card:focus-visible .arrow-btn,
+  .work-card:hover .arrow-btn,
+  .work-card:focus-visible .arrow-btn {
+    transform: rotate(45deg);
+    background: #fff;
+    color: var(--color-ink);
+  }
+  /* Monogram tile used when a project has no screenshot. */
+  .monogram-tile {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+    background-size: 36px 36px;
+    background-position: -1px -1px;
+  }
+
+  .social {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    color: #6b6b6b;
+    transition:
+      color 0.2s,
+      transform 0.2s;
+  }
+  .social svg {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+  }
+  .social:hover {
+    color: var(--color-ink);
+    transform: translateY(-2px);
+  }
+  .social:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  /* Header: flat at the top, morphs into a frosted pill on scroll, tucks away scrolling down. */
+  .site-nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    padding: 12px 16px 0;
+    pointer-events: none;
+    animation: fadeIn 0.6s ease both;
+    transition: translate 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @media (min-width: 768px) {
+    .site-nav {
+      padding-inline: 32px;
+    }
+  }
+  .site-nav.is-hidden:not(:focus-within) {
+    translate: 0 calc(-100% - 12px);
+  }
+  .site-nav-bar {
+    pointer-events: auto;
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    max-width: 1128px;
+    padding-inline: 0;
+    border-radius: 12px;
+    background: rgb(255 255 255 / 0);
+    box-shadow: 0 0 0 1px rgb(14 14 14 / 0);
+    transition:
+      max-width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+      padding 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 0.4s,
+      box-shadow 0.4s;
+  }
+  .site-nav.is-scrolled .site-nav-bar {
+    max-width: 560px;
+    padding-inline: 16px 6px;
+    background: rgb(255 255 255 / 0.78);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow:
+      0 0 0 1px rgb(14 14 14 / 0.06),
+      0 10px 30px -14px rgb(0 0 0 / 0.25);
+  }
+
+  /* ---------- Sections ---------- */
+  .sec {
+    @apply px-4 pb-[120px] md:px-8;
+    scroll-margin-top: 72px;
+  }
+  .wrap {
+    @apply mx-auto w-full max-w-[1128px];
+  }
+  .sec-head {
+    @apply mx-auto max-w-[560px] text-center;
+  }
+  .sec-label {
+    @apply font-display text-[12px] font-medium tracking-[0.02em] text-red;
+  }
+  .sec-title {
+    @apply font-display text-[36px] leading-[44px] font-medium tracking-[-0.02em] sm:text-[44px] sm:leading-[52px];
+  }
+  .sec-sub {
+    @apply mx-auto mt-[10px] max-w-[440px] text-[12px] leading-[17px] text-ink/70;
+  }
+
+  .pill-dark {
+    @apply inline-flex h-[28px] items-center rounded-[8px] px-3 font-display text-[11px] font-medium text-white;
+  }
+  .pill-dark {
+    @apply bg-ink;
+  }
+
+  .btn-dark,
+  .btn-light,
+  .btn-glass {
+    @apply inline-flex h-[44px] items-center justify-center gap-2 rounded-[9px] px-5 font-display text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+  .btn-dark {
+    @apply bg-ink text-white hover:bg-[#2b2b2b] focus-visible:ring-ink focus-visible:ring-offset-page;
+  }
+  .btn-light {
+    @apply bg-white text-ink hover:bg-[#e8e8e8] focus-visible:ring-white focus-visible:ring-offset-transparent;
+  }
+  .btn-glass {
+    @apply bg-white/20 text-white backdrop-blur-md hover:bg-white/30 focus-visible:ring-white focus-visible:ring-offset-transparent;
+  }
+
+  /* Steps: hairline + dot on top, light numeral; hover darkens it and stretches the dot. */
+  .step {
+    position: relative;
+    padding-top: 22px;
+    border-top: 1px solid rgb(14 14 14 / 0.12);
+  }
+  .step::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -3px;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.5s;
+  }
+  .step:hover::before {
+    width: 56px;
+    height: 5px;
+  }
+  .step-num {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    font-size: clamp(44px, 5.5vw, 60px);
+    line-height: 0.9;
+    color: rgb(14 14 14 / 0.22);
+    transition: color 0.4s;
+  }
+  .step:hover .step-num {
+    color: var(--color-ink);
+  }
+
+  /* ---------- Projects ---------- */
+  .project {
+    @apply relative block aspect-[4/3] w-full overflow-hidden rounded-[14px] text-left;
+  }
+  .project-shade {
+    @apply absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/70;
+  }
+  .chip-glass {
+    @apply inline-flex h-[28px] items-center rounded-[8px] bg-black/30 px-3 font-display text-[11px] font-medium text-white backdrop-blur-md;
+  }
+  .project-meta {
+    @apply absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4 text-white;
+  }
+  .project-name {
+    @apply font-display text-[22px] leading-[28px] font-medium tracking-[-0.02em] sm:text-[26px] sm:leading-[32px];
+  }
+  .project-role {
+    @apply max-w-[46%] text-right font-display text-[11px] leading-[15px] text-white/80;
+  }
+
+  /* ---------- Experience ---------- */
+  .xp-row {
+    @apply grid gap-3 border-t border-ink/12 py-7 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_150px] sm:gap-10;
+  }
+  .xp-role {
+    @apply block font-display text-[22px] font-medium tracking-[-0.02em];
+  }
+  .xp-desc {
+    @apply block max-w-[58ch] text-[14px] leading-[22px] text-ink/65;
+  }
+
+  /* ---------- Skills ---------- */
+  .skill {
+    @apply flex items-center gap-4 border-b border-page px-6 py-5 last:border-b-0;
+  }
+  .skill-track {
+    @apply h-[4px] flex-1 overflow-hidden rounded-full bg-page;
+  }
+  .skill-fill {
+    @apply relative block h-full origin-left overflow-hidden rounded-full bg-ink;
+  }
+
+  /* ---------- Footer ---------- */
+  .foot-head {
+    @apply font-display text-[12px] font-medium text-ink/45;
+  }
+  .foot-list {
+    @apply mt-4 space-y-[10px] font-display text-[14px];
+  }
+  .foot-list a:focus-visible,
+  .foot-list button:focus-visible {
+    @apply ring-2 ring-ink ring-offset-2 ring-offset-page;
+  }
+  /* Giant name at the very bottom; the page edge crops its lower part. */
+  .foot-mark {
+    @apply pointer-events-none mx-auto -mb-[0.22em] mt-4 max-w-[1128px] select-none whitespace-nowrap text-center font-display font-semibold leading-[0.9] tracking-[-0.045em] text-ink/[0.07];
+    font-size: clamp(64px, 16.5vw, 236px);
+  }
+
+  /* ---------- Menu + modal ---------- */
+  .menu {
+    animation: fadeIn 0.35s ease both;
+  }
+  .menu-link {
+    @apply inline-block rounded-md text-ink transition-colors duration-200 outline-none hover:underline hover:decoration-2 hover:underline-offset-4 focus-visible:underline;
+  }
+  .menu-links li {
+    animation: rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .menu-links li:nth-child(2) { animation-delay: 0.05s; }
+  .menu-links li:nth-child(3) { animation-delay: 0.1s; }
+  .menu-links li:nth-child(4) { animation-delay: 0.15s; }
+  .menu-links li:nth-child(5) { animation-delay: 0.2s; }
+  .menu-links li:nth-child(6) { animation-delay: 0.25s; }
+  .menu-links li:nth-child(7) { animation-delay: 0.3s; }
+
+  .toast {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.3s,
+      transform 0.3s;
+  }
+  .toast.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---------- Custom cursor (Cursor.tsx) ---------- */
+  .has-cursor,
+  .has-cursor * {
+    cursor: none !important;
+  }
+  /* Text fields keep the native I-beam (the custom cursor hides there, see Cursor.tsx). */
+  .has-cursor input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+  .has-cursor textarea,
+  .has-cursor select,
+  .has-cursor [contenteditable="true"] {
+    cursor: text !important;
+  }
+  .has-cursor select {
+    cursor: pointer !important;
+  }
+  .cursor[data-state="text"] .cursor-pointer {
+    opacity: 0;
+  }
+  .cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .cursor.is-active {
+    opacity: 1;
+  }
+
+  /* Mouse: pixel arrow / hand, tip exactly at the pointer. */
+  .cursor-pointer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+  }
+  .cursor.is-touch .cursor-pointer {
+    display: none;
+  }
+  .cursor-press {
+    position: relative;
+    transform-origin: 0 0;
+    transition: transform 0.12s ease;
+    filter: drop-shadow(1px 2px 0 rgb(0 0 0 / 0.18));
+  }
+  .cursor.is-pressed .cursor-press {
+    transform: scale(0.85);
+  }
+  .cursor-arrow,
+  .cursor-hand {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+  }
+  .cursor-hand {
+    display: none; /* left offset (fingertip hotspot) is set inline from PX */
+  }
+  .cursor[data-state="link"] .cursor-arrow {
+    display: none;
+  }
+  .cursor[data-state="link"] .cursor-hand {
+    display: block;
+  }
+  /* "View" tag beside the arrow over project cards. */
+  .cursor-tag {
+    position: absolute;
+    top: 0;
+    padding: 3px 8px;
+    border-radius: 7px;
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(4px) scale(0.8);
+    transform-origin: 0 0;
+    transition:
+      opacity 0.2s,
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .cursor[data-state="view"] .cursor-tag {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Touch: ring under the finger. */
+  .cursor-ring {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: none;
+    will-change: transform;
+  }
+  .cursor.is-touch .cursor-ring {
+    display: block;
+  }
+  .cursor-ring-inner {
+    width: 72px;
+    height: 72px;
+    margin: -36px 0 0 -36px;
+    display: grid;
+    place-items: center;
+    border-radius: 9999px;
+    border: 1.5px solid rgb(14 14 14 / 0.6);
+    transform: scale(0.5);
+    transition:
+      transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 0.3s,
+      border-color 0.3s;
+  }
+  .cursor-label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .cursor[data-state="link"] .cursor-ring-inner {
+    transform: scale(0.75);
+    background: rgb(14 14 14 / 0.08);
+  }
+  .cursor[data-state="view"] .cursor-ring-inner {
+    transform: scale(1.2);
+    background: var(--color-ink);
+    border-color: transparent;
+  }
+  .cursor[data-state="view"] .cursor-label {
+    opacity: 1;
+  }
+  .cursor.is-pressed .cursor-ring-inner {
+    transform: scale(0.4);
+  }
+}
+
+/* ============================================================
+   Keyframes + motion preferences
+   ============================================================ */
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(16deg);
+  }
+  40% {
+    transform: rotate(-8deg);
+  }
+  60% {
+    transform: rotate(12deg);
+  }
+  80% {
+    transform: rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   About: scroll-stop. --p (0 → 1) is the scroll progress through the pinned track,
+   set from About.tsx. Only active when the track is pinned (motion allowed).
+   ============================================================ */
+.about-track[data-pinned] {
+  height: 260vh;
+  /* Phases overlap so the screen is never half-empty:
+     heading words 0 → 40%, paragraph cards 15 → 85%, then a short rest. */
+  --hp: clamp(0, calc(var(--p) / 0.4), 1);
+}
+.about-track[data-pinned] .about-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 64px;
+}
+/* Words light up in turn with a focus pull: faint + soft blur → solid + sharp. */
+.about-track[data-pinned] .about-word {
+  --w: clamp(0, calc(var(--hp) * var(--words) - var(--i)), 1);
+  opacity: calc(0.12 + var(--w) * 0.88);
+  filter: blur(calc((1 - var(--w)) * 5px));
+}
+/* Cards start as faint ghosts (same motif as the heading words) and firm up in turn. */
+.about-track[data-pinned] .about-para {
+  --pp: clamp(0, calc((var(--p) - 0.15) / 0.7 * 4 - var(--j)), 1);
+  opacity: calc(0.18 + var(--pp) * 0.82);
+  translate: 0 calc((1 - var(--pp)) * 20px);
+  box-shadow: 0 18px 30px -24px rgb(0 0 0 / calc(var(--pp) * 0.3));
+}
+.about-track[data-pinned] .about-progress span {
+  scale: var(--p) 1;
+}
+
+/* ============================================================
+   Scroll entrances: section heads, cards, steps and rows rise into place as they
+   enter the viewport. Driven natively by scroll position (no JS); browsers without
+   scroll-driven animations, and reduced-motion users, just see the content.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .sec-head,
+    .work-card,
+    .step,
+    .xp-row,
+    #contact > .wrap,
+    .case-block,
+    .foot-rise {
+      animation: scroll-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
+@keyframes scroll-rise {
+  from {
+    opacity: 0;
+    translate: 0 40px;
+    scale: 0.985;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* ============================================================
+   What I Do: scroll-stop. Services.tsx maps scroll progress to the focused service.
+   ============================================================ */
+.svc-track[data-pinned] {
+  position: relative;
+  height: 340vh;
+}
+.svc-track[data-pinned] .svc-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 64px;
+}
+/* Typographic index: ghosted titles, the focused one solid. */
+.svc-list {
+  display: grid;
+}
+.svc-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35em;
+  width: 100%;
+  padding-block: 0.06em;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.2vw, 68px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: rgb(14 14 14 / 0.2);
+  border-radius: 6px;
+  outline: none;
+  transition:
+    color 0.45s ease,
+    translate 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.svc-title:hover {
+  color: rgb(14 14 14 / 0.35);
+}
+.svc-title.is-on {
+  color: var(--color-ink);
+  translate: 0.4em 0;
+}
+.svc-title:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 4px;
+}
+.svc-num {
+  margin-top: 0.55em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+/* Description swaps in whenever the focused service changes. */
+.svc-swap {
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ============================================================
+   Hamster pet (HamsterPet.tsx) — follows the cursor on mouse devices.
+   ============================================================ */
+.pet {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 199; /* just under the cursor */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
+  will-change: transform;
+}
+.pet.is-active {
+  opacity: 1;
+}
+.pet-body {
+  position: relative;
+  transform-origin: 50% 100%;
+}
+.pet-svg {
+  display: block;
+  filter: drop-shadow(0 3px 2px rgb(0 0 0 / 0.12));
+}
+/* Scurrying hop while it chases the pointer. */
+.pet.is-walking .pet-svg {
+  animation: pet-hop 0.28s steps(2, jump-none) infinite alternate;
+}
+/* Blink every few seconds. */
+.pet-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pet-blink 4.2s infinite;
+}
+/* A heart pops up over project cards. */
+.pet-heart {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-red);
+  opacity: 0;
+  translate: -50% 6px;
+  scale: 0.5;
+  transition:
+    opacity 0.25s,
+    translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pet.is-excited .pet-heart {
+  opacity: 1;
+  translate: -50% 0;
+  scale: 1;
+}
+@keyframes pet-hop {
+  to {
+    transform: translateY(-4px);
+  }
+}
+@keyframes pet-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.15);
+  }
+}
+
+/* ---------- Hamster pet: behaviours ---------- */
+.pet-act {
+  transform-origin: 50% 90%;
+}
+/* Faster, bigger hops when it's really running (fleeing, zoomies). */
+.pet.is-running .pet-svg {
+  animation-duration: 0.16s;
+}
+/* Speech bubble: "hi!", "!", "♥", "zoom!"… */
+.pet-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: var(--color-ink);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  translate: -50% 6px;
+  scale: 0.6;
+  transition:
+    opacity 0.2s,
+    translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pet-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 8px;
+  height: 5px;
+  translate: -50% 0;
+  background: var(--color-ink);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.pet-bubble.is-on {
+  opacity: 1;
+  translate: -50% 0;
+  scale: 1;
+}
+/* Near a screen edge the bubble anchors inward (its tail stays over Shiro). */
+.pet-bubble.is-edge-left {
+  left: 0;
+  translate: 0 6px;
+}
+.pet-bubble.is-edge-right {
+  left: auto;
+  right: 0;
+  translate: 0 6px;
+}
+.pet-bubble.is-edge-left.is-on,
+.pet-bubble.is-edge-right.is-on {
+  translate: 0 0;
+}
+.pet-bubble.is-edge-left::after {
+  left: 18px;
+}
+.pet-bubble.is-edge-right::after {
+  left: auto;
+  right: 10px;
+  translate: 0 0;
+}
+/* Hearts that float up from Shiro (petting, greetings). */
+.pet-float {
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  font-size: 12px;
+  line-height: 1;
+  color: #f58f8c;
+  pointer-events: none;
+  animation: pet-float 1s ease-out both;
+}
+@keyframes pet-float {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx, 0px)), -30px) scale(1.1);
+  }
+}
+/* Sleeping: eyes shut, floating z's, gentle breathing. */
+.pet.is-sleeping .pet-eye {
+  animation: none;
+  transform: scaleY(0.15);
+}
+.pet.is-sleeping .pet-act {
+  animation: pet-breathe 2.4s ease-in-out infinite;
+}
+.pet-zzz {
+  position: absolute;
+  right: -6px;
+  top: -10px;
+  display: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.pet.is-sleeping .pet-zzz {
+  display: block;
+}
+.pet-zzz i {
+  position: absolute;
+  font-style: normal;
+  opacity: 0;
+  animation: pet-z 2.4s ease-out infinite;
+}
+.pet-zzz i:nth-child(1) { font-size: 10px; }
+.pet-zzz i:nth-child(2) { font-size: 13px; animation-delay: 0.8s; }
+.pet-zzz i:nth-child(3) { font-size: 16px; animation-delay: 1.6s; }
+@keyframes pet-z {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(12px, -22px);
+  }
+}
+@keyframes pet-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.04, 0.96);
+  }
+}
+/* Cursor resting on the hamster: it bounces happily, waiting to be petted. */
+.pet.is-hovered:not(.is-walking) .pet-svg {
+  animation: pet-hop 0.45s ease-in-out infinite alternate;
+}
+/* While hovered, the hamster catches the click itself (so petting it doesn't click the page). */
+.pet.is-hovered {
+  pointer-events: auto;
+}
+/* Touch devices: Shiro can always be tapped (to pet it) — there's no hover to enable it. */
+.pet.is-touch {
+  pointer-events: auto;
+}
+
+/* ---------- Cursor on touch devices ---------- */
+/* A tap ripple that spreads out from the finger. */
+.cursor-ripple {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: 9999px;
+  border: 1.5px solid rgb(14 14 14 / 0.45);
+  pointer-events: none;
+  animation: cursor-ripple 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+@keyframes cursor-ripple {
+  from {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   Scroll-stops on phones and tablets (below the lg breakpoint)
+   ============================================================ */
+@media (max-width: 1023px) {
+  /* About: the four cards stack like a deck — each slides up over the last. */
+  .about-track[data-pinned] .about-stage {
+    padding-top: 72px;
+  }
+  .about-track[data-pinned] ol {
+    grid-template-columns: 1fr;
+  }
+  .about-track[data-pinned] .about-para {
+    grid-area: 1 / 1;
+    translate: 0 calc((1 - var(--pp)) * 130%);
+    opacity: clamp(0, calc(var(--pp) * 3), 1);
+    scale: 1;
+    box-shadow: 0 -4px 14px -10px rgb(0 0 0 / 0.14);
+  }
+  .about-track[data-pinned] .about-stage {
+    overflow: hidden;
+  }
+  /* The growing deck already shows progress, and the bar would cross the sliding cards. */
+  .about-track[data-pinned] .about-progress {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+/* Headline: words fade up in turn; the full stop is a red dot. */
+.hero-word {
+  display: inline-block;
+  animation: word-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(0.25s + var(--i) * 0.06s + var(--intro, 0s));
+}
+@keyframes word-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+}
+.hl-dot {
+  display: inline-block;
+  width: 0.17em;
+  height: 0.17em;
+  margin-left: 0.05em;
+  border-radius: 9999px;
+  background: var(--color-red);
+}
+
+/* Photo: black & white, eases into colour with a slow zoom on hover. */
+.hero-photo-img {
+  filter: grayscale(1) contrast(1.05);
+  transition:
+    filter 0.8s ease,
+    transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-photo-card:hover .hero-photo-img {
+  filter: grayscale(0) contrast(1);
+  transform: scale(1.04);
+}
+
+/* "Currently at…" status dot with a soft pulse. */
+.hero-live {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #22a35a;
+}
+.hero-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: live-pulse 2s ease-out infinite;
+}
+@keyframes live-pulse {
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Bigger, bordered social buttons in the hero. */
+.hero-social {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  border: 1px solid rgb(14 14 14 / 0.1);
+  color: var(--color-ink);
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.hero-social svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+.hero-social:hover {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+}
+.hero-social:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.hero-social--dark {
+  border-color: rgb(255 255 255 / 0.18);
+  color: #fff;
+}
+.hero-social--dark:hover {
+  background: #fff;
+  border-color: #fff;
+  color: var(--color-ink);
+}
+
+/* Logo: the doodle tilts its head on hover. */
+.logo-mark {
+  transition: rotate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+a:hover .logo-mark,
+a:focus-visible .logo-mark {
+  rotate: -12deg;
+}
+
+/* Quiet section links in the hero footer row. */
+.hero-link {
+  position: relative;
+  color: rgb(14 14 14 / 0.68);
+  border-radius: 2px;
+  transition: color 0.2s;
+}
+.hero-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1.5px;
+  background: var(--color-red);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-link:hover,
+.hero-link:focus-visible {
+  color: var(--color-ink);
+  outline: none;
+}
+.hero-link:hover::after,
+.hero-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Keyword highlights (<Highlight>): soft tints, dark text. */
+.kw {
+  padding: 0.04em 0.28em;
+  margin: 0 -0.08em;
+  border-radius: 6px;
+  color: var(--color-ink);
+  font-weight: 500;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* All tones share one quiet neutral tint, to stay in the monochrome palette. */
+.kw-red,
+.kw-orange,
+.kw-blue,
+.kw-green {
+  background: rgb(14 14 14 / 0.07);
+}
+/* Shiro blushing (tickled). */
+.pet-blush {
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.pet.is-blushing .pet-blush {
+  opacity: 0.9;
+}
+
+/* ============================================================
+   My Superpowers (Skills.tsx) — tiles pop in once when scrolled into view.
+   `.skills-armed` is added by JS (never under reduced motion), so without it
+   everything simply shows its final state.
+   ============================================================ */
+.skills-armed .skill-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+}
+.skills-armed.skills-in .skill-card {
+  animation: skill-card-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 60ms); /* each group restarts its count, so all settle quickly */
+}
+@keyframes skill-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Icon wiggles on hover / tap. */
+.skill-card:hover .skill-icon,
+.skill-card:active .skill-icon {
+  animation: skill-wiggle 0.5s ease-in-out;
+}
+@keyframes skill-wiggle {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: rotate(-10deg) scale(1.08);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.08);
+  }
+  75% {
+    transform: rotate(-4deg);
+  }
+}
+/* Skill tiles: hairline outline on the page colour; they fill white on hover. */
+.skill-tile {
+  border-radius: 14px;
+  border: 1px solid rgb(14 14 14 / 0.1);
+}
+.skill-tile:hover {
+  background: #fff;
+  border-color: transparent;
+}
+/* Development tiles lift a little on hover. */
+.tech-card {
+  transition:
+    translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s,
+    background-color 0.3s,
+    border-color 0.3s;
+}
+.tech-card:hover {
+  translate: 0 -3px;
+  box-shadow: 0 14px 24px -18px rgb(0 0 0 / 0.35);
+}
+
+/* ============================================================
+   Intro (Intro.tsx): ~3s opening on every load, then slides up.
+   While it's on screen, hero entrances wait for it via --intro.
+   ============================================================ */
+:root:has(.intro) {
+  --intro: 2.1s;
+}
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 300; /* above the cursor and Shiro */
+  display: grid;
+  place-items: center;
+  background: var(--color-page);
+  pointer-events: none;
+  animation: intro-out 0.9s cubic-bezier(0.7, 0, 0.2, 1) 2.3s both;
+}
+.intro-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.intro-logo {
+  animation: intro-pop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+.intro-name {
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  animation: intro-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.45s both;
+}
+.intro-line {
+  display: block;
+  margin-top: 18px;
+  width: 140px;
+  height: 2px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgb(14 14 14 / 0.1);
+  animation: intro-rise 0.6s ease 0.7s both;
+}
+.intro-line span {
+  display: block;
+  height: 100%;
+  background: var(--color-ink);
+  transform-origin: left;
+  animation: grow 1.4s cubic-bezier(0.6, 0, 0.3, 1) 0.8s both;
+}
+.intro-note {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: rgb(14 14 14 / 0.5);
+  animation: intro-rise 0.6s ease 0.85s both;
+}
+@keyframes intro-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-14deg);
+  }
+}
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes intro-out {
+  to {
+    transform: translateY(-100%);
+    border-radius: 0 0 50% 50% / 0 0 80px 80px;
+  }
+}
