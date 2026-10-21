@@ -32,7 +32,7 @@ export default function ProjectMedia({ project, sizes, priority = false, large =
         )
       ) : (
         <div className="monogram-tile card-media absolute inset-0 grid place-items-center" aria-hidden="true">
-          <span className={`select-none font-display font-medium tracking-[-0.03em] text-white/25 ${large ? "text-[clamp(96px,16vw,200px)]" : "text-[clamp(72px,11vw,150px)]"}`}>
+          <span className={`select-none font-display font-medium tracking-[-0.03em] text-snow/25 ${large ? "text-[clamp(96px,16vw,200px)]" : "text-[clamp(72px,11vw,150px)]"}`}>
             {project.monogram}
           </span>
         </div>

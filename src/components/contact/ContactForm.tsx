@@ -1,11 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
+import logo from "@/assets/logo.png";
 import { ArrowUpRight } from "@/components/icons";
 import { useUI } from "@/components/ui/UIProvider";
+import { CONTACT_MAX, isValidField, type ContactField } from "@/lib/contact";
 import { PERSON, SERVICES } from "@/lib/content";
 
-type Field = "name" | "email" | "message";
+type Field = ContactField;
 
 const ERRORS: Record<Field, string> = {
   name: "I'd love to know who I'm talking to.",
@@ -13,12 +16,13 @@ const ERRORS: Record<Field, string> = {
   message: "Don't leave me hanging. Tell me about your project!",
 };
 
-const valid = (f: Field, v: string) => (f === "email" ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) : v.trim().length > 0);
+const valid = isValidField;
+const MAX = CONTACT_MAX;
 
 /**
- * Mail Me form. No backend: on send it opens the visitor's email app with a message to
- * Gopi already written (subject, body, chosen services). To send from the page instead,
- * post `values` to a form service (Resend, Formspree…) in `submit`.
+ * Mail Me form. Posts to /api/contact, which emails Gopi through Gmail (Reply-To = visitor)
+ * and sends the visitor a short confirmation. If email isn't configured on the server (503),
+ * it falls back to opening the visitor's email app with the message written.
  */
 export default function ContactForm() {
   const { showToast } = useUI();
@@ -26,7 +30,10 @@ export default function ContactForm() {
   const [values, setValues] = useState<Record<Field, string>>({ name: "", email: "", message: "" });
   const [topics, setTopics] = useState<string[]>([]);
   const [invalid, setInvalid] = useState<Partial<Record<Field, boolean>>>({});
-  const [sent, setSent] = useState(false);
+  /** How it went out: emailed by the server, or handed to the visitor's email app. */
+  const [sent, setSent] = useState<false | "email" | "mailto">(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   const update = (f: Field, v: string) => {
     setValues((s) => ({ ...s, [f]: v }));
@@ -34,8 +41,14 @@ export default function ContactForm() {
   };
   const toggle = (t: string) => setTopics((ts) => (ts.includes(t) ? ts.filter((x) => x !== t) : [...ts, t]));
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (sending) return;
+    // Honeypot: real people never see or fill the hidden "company" field; bots do.
+    if (new FormData(formRef.current!).get("company")) {
+      setSent("email");
+      return;
+    }
     const fields: Field[] = ["name", "email", "message"];
     const bad = Object.fromEntries(fields.map((f) => [f, !valid(f, values[f])])) as Record<Field, boolean>;
     setInvalid(bad);
@@ -53,9 +66,34 @@ export default function ContactForm() {
       "",
       `— ${values.name.trim()} (${values.email.trim()})`,
     ].join("\n");
-    window.location.href = `mailto:${PERSON.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
-    showToast("Opening your email app…");
+
+    const openMailApp = () => {
+      window.location.href = `mailto:${PERSON.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setSent("mailto");
+      showToast("Opening your email app…");
+    };
+
+    setSending(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, topics, company: new FormData(formRef.current!).get("company") ?? "" }),
+      });
+      if (res.status === 503) return openMailApp(); // email not set up on the server yet
+      if (!res.ok) {
+        const { error: msg } = await res.json().catch(() => ({ error: "" }));
+        setError(res.status === 429 ? msg : "Hmm, that didn't go through.");
+        return;
+      }
+      setSent("email");
+      showToast("Message sent ♥");
+    } catch {
+      setError("Hmm, that didn't go through.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const inputCls = (f: Field) =>
@@ -64,22 +102,50 @@ export default function ContactForm() {
     }`;
 
   if (sent) {
+    // "It's a match!": Gopi's doodle and the visitor's initials slide together, a heart pops.
+    const initials = values.name
+      .replace(/[^\p{L}\s]/gu, "")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase())
+      .join("");
     return (
-      <div className="flex h-full flex-col items-start justify-center py-10" role="status">
-        <span className="pill-dark bg-red">Almost there</span>
-        <p className="mt-5 font-display text-[28px] font-medium leading-[34px] tracking-[-0.02em]">Your email app should be open with the message ready.</p>
-        <p className="mt-3 max-w-[420px] text-[14px] leading-[22px] text-ink/65">
-          Just press send. If nothing opened, email me directly at <span className="kw kw-red">{PERSON.email}</span>.
+      <div className="flex flex-col items-center py-8 text-center" role="status">
+        <div className="match-pair" aria-hidden="true">
+          <Image src={logo} alt="" width={84} height={84} className="match-avatar match-left bg-page" />
+          <span className="match-heart">♥</span>
+          <span className="match-avatar match-right grid place-items-center bg-ink font-display text-[28px] font-medium text-white">{initials || "?"}</span>
+        </div>
+        <p className="match-title mt-6 font-display text-[40px] font-medium leading-none tracking-[-0.03em] sm:text-[48px]">It&apos;s a match!</p>
+        <p className="mt-4 max-w-[380px] text-[15px] leading-[24px] text-ink/65">
+          {sent === "email"
+            ? `You and ${PERSON.name.split(" ")[0]} both want to build something great. Your message just landed in my inbox, and a little confirmation is on its way to yours.`
+            : `You and ${PERSON.name.split(" ")[0]} both want to build something great. Your email app should be open with the message ready, so just hit send.`}
         </p>
-        <button type="button" onClick={() => setSent(false)} className="btn-dark mt-7 bg-page! text-ink! hover:bg-[#e2e2e2]!">
-          Edit message
+        {sent === "mailto" && (
+          <p className="mt-2 text-[13px] text-ink/50">
+            Nothing opened? Email <span className="font-medium text-ink">{PERSON.email}</span>
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            if (sent === "email") setValues({ name: "", email: "", message: "" });
+            setSent(false);
+          }}
+          className="btn-dark mt-7 h-[44px]! bg-page! px-5! text-ink! hover:bg-ghost!"
+        >
+          {sent === "email" ? "Send another" : "Edit message"}
         </button>
       </div>
     );
   }
 
   return (
-    <form ref={formRef} onSubmit={submit} noValidate className="space-y-5">
+    <form ref={formRef} onSubmit={submit} noValidate aria-busy={sending} className="space-y-5">
+      {/* Honeypot: hidden from people (and screen readers); bots that fill it are dropped. */}
+      <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-px w-px opacity-0" />
       <div className="grid gap-5 sm:grid-cols-2">
         {(["name", "email"] as const).map((f) => (
           <label key={f} className="block">
@@ -90,6 +156,7 @@ export default function ContactForm() {
               autoComplete={f}
               placeholder={f === "name" ? "Jane Doe" : "you@company.com"}
               value={values[f]}
+              maxLength={MAX[f]}
               onChange={(e) => update(f, e.target.value)}
               onBlur={() => values[f] && setInvalid((s) => ({ ...s, [f]: !valid(f, values[f]) }))}
               aria-invalid={!!invalid[f]}
@@ -117,7 +184,7 @@ export default function ContactForm() {
                 aria-pressed={on}
                 onClick={() => toggle(title)}
                 className={`focus-ring h-[36px] rounded-[9px] px-4 font-display text-[12px] font-medium transition-colors ${
-                  on ? "bg-ink text-white" : "bg-page text-ink/75 hover:bg-[#e2e2e2]"
+                  on ? "bg-ink text-white" : "bg-page text-ink/75 hover:bg-ghost"
                 }`}
               >
                 {on && <span aria-hidden="true">✓ </span>}
@@ -135,6 +202,7 @@ export default function ContactForm() {
           rows={5}
           placeholder="Spill the tea: what are you building, by when, and why does it matter?"
           value={values.message}
+          maxLength={MAX.message}
           onChange={(e) => update("message", e.target.value)}
           aria-invalid={!!invalid.message}
           aria-describedby={invalid.message ? "message-err" : undefined}
@@ -148,11 +216,20 @@ export default function ContactForm() {
       </label>
 
       <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[12px] text-ink/65">Opens your email app with everything filled in.</p>
-        <button type="submit" className="btn-dark">
-          Send it my way <ArrowUpRight className="h-[12px] w-[12px]" />
+        <p className="text-[12px] text-ink/65">Lands straight in my inbox. You&apos;ll get a confirmation too.</p>
+        <button type="submit" disabled={sending} className="btn-dark disabled:cursor-wait disabled:opacity-70">
+          {sending ? "Sending…" : "Send it my way"} <ArrowUpRight className="h-[12px] w-[12px]" />
         </button>
       </div>
+      {error && (
+        <p role="alert" className="rounded-[10px] bg-page px-4 py-3 text-[13px] leading-[20px] text-ink/75">
+          {error} Try again in a moment, or{" "}
+          <a href={`mailto:${PERSON.email}`} className="font-medium text-ink underline underline-offset-2">
+            email me directly
+          </a>
+          .
+        </p>
+      )}
     </form>
   );
 }

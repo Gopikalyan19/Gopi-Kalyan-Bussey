@@ -4,6 +4,7 @@ import portrait from "@/assets/gopi-portrait.jpeg";
 import { ArrowUpRight, LinkedIn, Mail } from "@/components/icons";
 import { CONTACT_PAGE, EXPERIENCE, HERO, MENU_LINKS, PERSON } from "@/lib/content";
 import HeroHeadline from "./HeroHeadline";
+import HeroStatus from "./HeroStatus";
 
 /** One-time staggered load-in. */
 function Reveal({ i, className = "", children }: { i: number; className?: string; children: ReactNode }) {
@@ -43,18 +44,21 @@ export default function Hero() {
                 {HERO.primaryCta}
                 <ArrowUpRight className="h-[12px] w-[12px] rotate-90 transition-transform group-hover:translate-y-[2px]" />
               </a>
-              <a href={CONTACT_PAGE} className="btn-dark group h-[48px]! bg-white! px-6! text-ink! hover:bg-[#f5f5f5]!">
+              <a href={CONTACT_PAGE} className="btn-dark group h-[48px]! bg-white! px-6! text-ink! hover:bg-white/70!">
                 {HERO.secondaryCta}
                 <ArrowUpRight className="h-[12px] w-[12px] transition-transform group-hover:-translate-y-[2px] group-hover:translate-x-[2px]" />
               </a>
             </div>
+          </Reveal>
+          <Reveal i={5}>
+            <HeroStatus className="mt-6" />
           </Reveal>
         </div>
 
         {/* Bento: currently · portrait · explore */}
         <div className="mt-16 grid gap-3 sm:mt-20 md:grid-cols-2 md:gap-4 lg:grid-cols-[1fr_1.35fr_1fr]">
           {/* Currently (dark grid tile, like the contact card) */}
-          <Reveal i={5} className="monogram-tile flex min-h-[220px] md:min-h-[300px] flex-col rounded-[20px] bg-ink p-6 text-white">
+          <Reveal i={5} className="keep-dark monogram-tile flex min-h-[220px] md:min-h-[300px] flex-col rounded-[20px] bg-ink p-6 text-white">
             <p className="font-display text-[12px] font-medium text-white/55">Currently committed to</p>
             <p className="mt-3 font-display text-[24px] font-medium leading-[30px] tracking-[-0.02em]">{current.role}</p>
             <p className="mt-1 font-display text-[13px] text-white/65">

@@ -94,7 +94,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
                   {l.label} <ArrowUpRight className="h-[12px] w-[12px]" />
                 </a>
               ))}
-              <a href={CONTACT_PAGE} className={`btn-dark h-[48px]! px-6! ${p.links?.length ? "bg-white! text-ink! hover:bg-[#f5f5f5]!" : ""}`}>
+              <a href={CONTACT_PAGE} className={`btn-dark h-[48px]! px-6! ${p.links?.length ? "bg-white! text-ink! hover:bg-white/70!" : ""}`}>
                 {HERO.secondaryCta} <ArrowUpRight className="h-[12px] w-[12px]" />
               </a>
             </div>
@@ -162,7 +162,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
         <Link
           href={`/work/${next.slug}`}
           data-cursor="view"
-          className={`wrap card focus-ring group relative block overflow-hidden rounded-[20px] sm:min-h-[380px] ${nextLogo ? "min-h-[420px]" : "min-h-[300px]"}`}
+          className={`theme-light wrap card focus-ring group relative block overflow-hidden rounded-[20px] sm:min-h-[380px] ${nextLogo ? "min-h-[420px]" : "min-h-[300px]"}`}
           style={{ background: next.bg }}
         >
           {next.imageFit === "contain" ? (

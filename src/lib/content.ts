@@ -31,6 +31,17 @@ export const HERO = {
     "Hey, I'm Gopi Kalyan, a UI/UX and product designer who turns messy, complicated problems into simple, intuitive, and meaningful experiences. The kind people don't just use, they get attached to.",
   support:
     "Design, tech, and a healthy obsession with human-centered thinking. I make products that look good, work even better, and never leave users on read.",
+  /** Live status under the hero buttons, picked by Gopi's local hour (from = start hour, 0–23). */
+  timeZone: "Asia/Kolkata",
+  status: [
+    { from: 0, text: "probably debugging something (or asleep)" },
+    { from: 6, text: "probably on coffee #1" },
+    { from: 9, text: "probably pushing pixels in Figma" },
+    { from: 13, text: "probably on a lunch break" },
+    { from: 14, text: "probably deep in a design sprint" },
+    { from: 18, text: "probably turning designs into code" },
+    { from: 21, text: "probably overthinking a font choice" },
+  ],
   primaryCta: "Check Out My Work",
   secondaryCta: "Slide Into My Inbox",
 };

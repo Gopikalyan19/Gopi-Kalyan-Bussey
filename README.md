@@ -38,6 +38,7 @@ layout with a playful, flirty voice, scroll-driven storytelling, and a few small
 | Styling | [Tailwind CSS 4](https://tailwindcss.com) |
 | Type | Bricolage Grotesque, Geist; handwritten Nanum Pen Script, Sriracha and Zhi Mang Xing for the language tiles |
 | Icons | [Simple Icons](https://simpleicons.org) |
+| Email | [Nodemailer](https://nodemailer.com) + Gmail SMTP |
 | Hosting | [Vercel](https://vercel.com) |
 
 ## Run it locally
@@ -68,6 +69,32 @@ Almost everything you read on the site lives in one file: **`src/lib/content.ts`
 | What Shiro says | `LINES` at the top of `src/components/ui/HamsterPet.tsx` |
 
 Images live in `public/projects/` and `public/skills/`. The portrait and logo are in `src/assets/`.
+
+## Contact form email (Gmail)
+
+The contact form posts to `/api/contact`, a small server function in this project (it runs on Vercel; no separate backend). It sends through Gmail SMTP with a **Google App Password**:
+
+- **To me:** the message, with Reply-To set to the sender.
+- **To the sender:** a short "It's a match 💘" confirmation (fixed text plus their first name only).
+
+It has server-side validation, a hidden spam trap, length limits and a rate limit of 3 messages per 10 minutes per visitor. Until it's configured, the form falls back to opening the visitor's email app.
+
+**Setup**
+
+1. Turn on **2-Step Verification** for your Google account (required for App Passwords).
+2. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords), create one called "Portfolio", and copy the 16-character password.
+3. Create `.env.local` in the project root (it's git-ignored, so it's never committed):
+
+   ```bash
+   GMAIL_USER=you@gmail.com
+   GMAIL_APP_PASSWORD=abcdefghijklmnop   # the App Password, spaces removed
+   # CONTACT_TO=other@inbox.com           # optional: deliver to a different inbox
+   ```
+
+4. Add the same variables in **Vercel → Settings → Environment Variables**, then redeploy.
+5. Restart `npm run dev` locally to pick them up.
+
+The App Password only ever lives on the server. Never prefix these variables with `NEXT_PUBLIC_`, because that would expose them in the browser.
 
 ## Project structure
 

@@ -30,6 +30,8 @@ const LINES = {
   sleep: ["z", "yawn…"],
   dream: ["*dreams of seeds*", "mm… pixels…", "*snore*"],
   wake: ["!", "I was awake!", "five more mins…"],
+  night: ["night night 🌙", "*yawn* lights out?", "sleepy…"],
+  morning: ["good morning! ☀", "I'm up! I'm up!", "is it day already?"],
   cta: ["do it! ♥", "say yes!", "go on~", "he's nice, I promise"],
   project: ["ooh, that one!", "my fave ♥", "click it~"],
   /** Said once when each section scrolls into view (keyed by section id). */
@@ -139,6 +141,8 @@ export default function HamsterPet() {
     let bubbleTimer: ReturnType<typeof setTimeout> | undefined;
     let busyUntil = 0; // while a trick plays, the pet stands still
     let dreamt = false;
+    /** Night mode: Shiro sleeps, ignores the cursor, and dozes off again soon after a pat. */
+    const night = () => document.documentElement.dataset.theme === "dark";
 
     // ---- helpers --------------------------------------------------------
     const clampToView = (x: number, y: number) => ({
@@ -300,7 +304,7 @@ export default function HamsterPet() {
           break;
         case "pause":
           if (now > modeUntil) {
-            if (idle > 16000) {
+            if (night() || idle > 16000) {
               setMode("sleep", rand(7000, 11000));
               dreamt = false;
               say(pick(LINES.sleep), 900);
@@ -390,6 +394,7 @@ export default function HamsterPet() {
       const near = Math.hypot(c.x - x, c.y - y) < 90;
 
       if (mode === "sleep") {
+        if (night()) return; // lights are off: let it sleep (a pat still wakes it)
         setMode("follow");
         trick("jump");
         say(pick(LINES.wake), 1300);
@@ -451,7 +456,8 @@ export default function HamsterPet() {
       lastPointerAt = now;
       pointer.x = e.clientX;
       pointer.y = e.clientY;
-      if (mode === "sleep") setMode("follow");
+      // At night a pat only half-wakes it: it reacts, then dozes off again shortly after.
+      if (mode === "sleep" || night()) setMode(night() ? "pause" : "follow", 1800);
 
       // Pats more than ~1.3s apart start the count over.
       tickles = now - lastPetAt < 1300 ? tickles + 1 : 1;
@@ -525,6 +531,21 @@ export default function HamsterPet() {
     }
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    // Night mode: lights off → Shiro curls up to sleep; lights on → wakes with a stretch.
+    const onTheme = (e: Event) => {
+      if (!started) return;
+      if ((e as CustomEvent).detail === "dark") {
+        setMode("sleep", rand(7000, 11000));
+        dreamt = false;
+        say(pick(LINES.night), 1800);
+      } else if (mode === "sleep") {
+        setMode("follow");
+        trick("jump");
+        say(pick(LINES.morning), 1600);
+      }
+    };
+    window.addEventListener("themechange", onTheme);
+
     // Section reactions: one remark per section per visit, as it scrolls into view.
     const greeted = new Set<string>();
     const sectionIO = new IntersectionObserver(
@@ -554,6 +575,7 @@ export default function HamsterPet() {
       window.removeEventListener("pointerdown", onDown);
       root.removeEventListener("pointerdown", onPet);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("themechange", onTheme);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
     };

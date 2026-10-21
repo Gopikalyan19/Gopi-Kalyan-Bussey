@@ -68,7 +68,7 @@ export default function SitePreview({ url, poster, title }: { url: string; poste
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="focus-ring hidden h-[32px] shrink-0 items-center gap-1 rounded-[8px] bg-ink px-3 font-display text-[12px] font-medium text-white transition-colors hover:bg-[#2b2b2b] sm:inline-flex"
+          className="focus-ring hidden h-[32px] shrink-0 items-center gap-1 rounded-[8px] bg-ink px-3 font-display text-[12px] font-medium text-white transition-colors hover:bg-ink/85 sm:inline-flex"
         >
           Visit Live Site <ArrowUpRight className="h-[11px] w-[11px]" />
         </a>

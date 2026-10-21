@@ -95,7 +95,7 @@ const FLAGS: Record<string, ReactNode> = {
 function Tile({ i, icon, name }: { i: number; icon: ReactNode; name: string }) {
   return (
     <li className="skill-card tech-card skill-tile flex items-center gap-4 px-5 py-4" style={{ "--i": i } as CSSProperties}>
-      <span className="skill-icon grid h-[44px] w-[44px] shrink-0 place-items-center rounded-[10px] bg-white">{icon}</span>
+      <span className="skill-icon grid h-[44px] w-[44px] shrink-0 place-items-center rounded-[10px] bg-snow">{icon}</span>
       <span className="font-display text-[15px] font-medium tracking-[-0.01em]">{name}</span>
     </li>
   );
@@ -139,7 +139,7 @@ export default function Skills() {
             className="skill-card tech-card skill-tile flex flex-col items-center gap-4 px-4 pb-5 pt-6 text-center"
             style={{ "--i": i } as CSSProperties}
           >
-            <span className="skill-icon grid h-[64px] w-[64px] place-items-center rounded-[16px] bg-white">
+            <span className="skill-icon grid h-[64px] w-[64px] place-items-center rounded-[16px] bg-snow">
               <Image src={s.icon} alt="" width={36} height={36} className="h-[36px] w-[36px]" />
             </span>
             <span className="font-display text-[15px] font-medium tracking-[-0.01em]">{s.name}</span>

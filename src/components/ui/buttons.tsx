@@ -23,7 +23,7 @@ export function MenuButton() {
       aria-haspopup="dialog"
       aria-controls="menu"
       aria-expanded={menuOpen}
-      className="focus-ring h-[36px] rounded-[7px] bg-ink px-[18px] font-display text-[12px] font-medium text-white transition-colors hover:bg-[#2b2b2b]"
+      className="focus-ring h-[36px] rounded-[7px] bg-ink px-[18px] font-display text-[12px] font-medium text-white transition-colors hover:bg-ink/85"
     >
       Menu
     </button>

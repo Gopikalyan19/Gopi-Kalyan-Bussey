@@ -46,8 +46,11 @@ export const viewport: Viewport = { themeColor: "#ededed" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${geist.variable}`}>
+    // suppressHydrationWarning: the theme script below sets data-theme on <html> before React loads.
+    <html lang="en" className={`${bricolage.variable} ${geist.variable}`} suppressHydrationWarning>
       <body className="bg-page font-body text-ink antialiased">
+        {/* Apply the saved night/day choice before first paint, so there's no flash. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{if(localStorage.getItem("theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}` }} />
         <a href="#main" className="focus-ring fixed left-4 top-4 z-[130] -translate-y-24 rounded-[9px] bg-ink px-4 py-3 font-display text-[13px] font-medium text-white focus:translate-y-0">
           Skip to content
         </a>

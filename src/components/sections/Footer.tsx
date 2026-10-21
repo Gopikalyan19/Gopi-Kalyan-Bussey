@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Logo from "@/components/Logo";
 import { ArrowUpRight } from "@/components/icons";
+import Breathe from "@/components/ui/Breathe";
 import { CopyButton } from "@/components/ui/buttons";
 import { CONTACT, CONTACT_PAGE, MENU_LINKS, PERSON } from "@/lib/content";
 
@@ -29,6 +30,7 @@ export default function Footer() {
             <a href={CONTACT_PAGE} className="btn-dark mt-6 h-[42px]! px-5!">
               Start a project <ArrowUpRight className="h-[11px] w-[11px]" />
             </a>
+            <Breathe />
           </div>
           <nav aria-label="Footer pages" className="col-span-2 sm:col-span-1">
             <Column title="Pages">

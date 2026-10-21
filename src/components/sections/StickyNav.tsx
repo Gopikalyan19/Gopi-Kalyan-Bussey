@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import { ArrowUpRight } from "@/components/icons";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { MenuButton } from "@/components/ui/buttons";
 import { PERSON } from "@/lib/content";
 
@@ -53,7 +54,10 @@ export default function StickyNav({ back }: { back?: { href: string; label: stri
             <Logo />
           </a>
         )}
-        <MenuButton />
+        <span className="flex items-center gap-2">
+          <ThemeToggle />
+          <MenuButton />
+        </span>
       </nav>
     </header>
   );

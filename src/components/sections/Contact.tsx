@@ -10,7 +10,7 @@ export default function Contact() {
 
   return (
     <section id="contact" aria-labelledby="contact-title" className="scroll-mt-[72px] px-4 pb-3 md:px-8">
-      <div className="wrap monogram-tile relative overflow-hidden rounded-[24px] bg-ink">
+      <div className="keep-dark wrap monogram-tile relative overflow-hidden rounded-[24px] bg-ink">
         {/* Soft glow behind the heading. */}
         <span className="pointer-events-none absolute left-1/2 top-[-30%] h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-white/[0.07] blur-[90px]" aria-hidden="true" />
         <div className="relative flex min-h-[480px] flex-col items-center justify-center px-6 py-20 text-center text-white">
